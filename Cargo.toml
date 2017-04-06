@@ -5,4 +5,5 @@ authors = ["Christoph Wurst <christoph@winzerhof-wurst.at>"]
 
 [dependencies]
 hyper = "0.10.6"
+hyperdav = "0.1.2"
 json = "0.11.6"

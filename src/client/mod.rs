@@ -1,15 +1,24 @@
 extern crate hyper;
 
+pub mod davclient;
+
 use std::io::Read;
 use super::status;
 
+#[derive(Debug)]
+pub struct Credentials {
+    pub user: String,
+    pub password: String,
+}
+
+#[derive(Debug)]
 pub struct Client<'a> {
     url: &'a str,
     http_client: hyper::client::Client,
 }
 
 impl<'a> Client<'a> {
-    pub fn new(url: &'a str) -> Client<'a> {
+    pub fn new(url: &'a str) -> Self {
         Client {
             url: url,
             http_client: hyper::client::Client::new(),
@@ -31,5 +40,9 @@ impl<'a> Client<'a> {
             Ok(status) => Ok(status),
             Err(err) => Err(err),
         }
+    }
+
+    pub fn get_dav_client(&self, creds: Credentials) -> davclient::DAVClient {
+        davclient::DAVClient::new(creds)
     }
 }
