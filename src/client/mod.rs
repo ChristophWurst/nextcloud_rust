@@ -1,10 +1,10 @@
 extern crate hyper;
-extern crate json;
 
 use std::io::Read;
+use super::status;
 
 pub trait Client {
-    fn status(&self) -> Result<i32, &'static str>;
+    fn status(&self) -> Result<status::ServerStatus, &'static str>;
 }
 
 pub struct ClientImpl<'a> {
@@ -12,28 +12,21 @@ pub struct ClientImpl<'a> {
     http_client: hyper::client::Client,
 }
 
-fn parse_status(text: &mut String) -> Result<i32, &'static str> {
-    match json::parse(&text) {
-        Ok(status) => {
-            println!("Nextcloud version: {}", status["version"]);
-            return Ok(0);
-        }
-        Err(_) => {
-            return Err("error while parsing the resonse");
-        }
-    }
-}
-
 impl<'a> Client for ClientImpl<'a> {
-    fn status(&self) -> Result<i32, &'static str> {
+    fn status(&self) -> Result<status::ServerStatus, &'static str> {
         let mut url = self.url.to_string();
         url.push_str("/status.php");
         let mut res = self.http_client.get(&url).send().unwrap();
 
         let mut resp_text = "".to_string();
         match res.read_to_string(&mut resp_text) {
-            Ok(_) => parse_status(&mut resp_text),
-            Err(_) => Err("error while reading response body"),
+            Ok(_) => {}
+            Err(_) => return Err("error while reading response body"),
+        }
+
+        match status::parse_status(&mut resp_text) {
+            Ok(status) => Ok(status),
+            Err(err) => Err(err),
         }
     }
 }
