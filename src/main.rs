@@ -1,12 +1,10 @@
 extern crate nextcloud;
 
-use nextcloud::client::Client;
 use nextcloud::client;
 
 fn main() {
     let url = "http://localhost:8080";
-    let builder = client::Builder::new(url);
-    let client = builder.finalize();
+    let client = client::Client::new(url);
 
     match client.status() {
         Ok(status) => {

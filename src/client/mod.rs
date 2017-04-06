@@ -3,17 +3,20 @@ extern crate hyper;
 use std::io::Read;
 use super::status;
 
-pub trait Client {
-    fn status(&self) -> Result<status::ServerStatus, &'static str>;
-}
-
-pub struct ClientImpl<'a> {
+pub struct Client<'a> {
     url: &'a str,
     http_client: hyper::client::Client,
 }
 
-impl<'a> Client for ClientImpl<'a> {
-    fn status(&self) -> Result<status::ServerStatus, &'static str> {
+impl<'a> Client<'a> {
+    pub fn new(url: &'a str) -> Client<'a> {
+        Client {
+            url: url,
+            http_client: hyper::client::Client::new(),
+        }
+    }
+
+    pub fn status(&self) -> Result<status::ServerStatus, &'static str> {
         let mut url = self.url.to_string();
         url.push_str("/status.php");
         let mut res = self.http_client.get(&url).send().unwrap();
@@ -27,24 +30,6 @@ impl<'a> Client for ClientImpl<'a> {
         match status::parse_status(&mut resp_text) {
             Ok(status) => Ok(status),
             Err(err) => Err(err),
-        }
-    }
-}
-
-pub struct Builder<'a> {
-    url: &'a str,
-}
-
-impl<'a> Builder<'a> {
-    pub fn new(url: &'a str) -> Builder<'a> {
-        Builder { url: url }
-    }
-
-    // TODO: return Client trait object and hide impl
-    pub fn finalize(&self) -> ClientImpl {
-        ClientImpl {
-            url: self.url,
-            http_client: hyper::client::Client::new(),
         }
     }
 }
