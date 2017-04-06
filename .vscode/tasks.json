@@ -2,12 +2,15 @@
     "version": "0.1.0",
     "command": "cargo",
     "isShellCommand": true,
-    "args": ["build"],
+    "args": [],
     "showOutput": "always",
     "tasks": [
         {
+            "taskName": "build",
+            "isBuildCommand": true
+        },
+        {
             "taskName": "run",
-            "command": "cargo",
             "args": [
                 "run"
             ]
